@@ -35,7 +35,7 @@ const roles = [
 const DEFAULT_ADMIN = {
     username: process.env.DEFAULT_ADMIN_USERNAME || 'admin',
     email: process.env.DEFAULT_ADMIN_EMAIL || 'admin@smartroute.local',
-    password: process.env.DEFAULT_ADMIN_PASSWORD || 'Admin@123',
+    password: process.env.DEFAULT_ADMIN_PASSWORD || 'Duykhoa@0972350720',
     fullName: process.env.DEFAULT_ADMIN_FULLNAME || 'System Administrator'
 };
 
@@ -91,12 +91,12 @@ async function seedRoles() {
             console.log('✓ Tài khoản admin đã tồn tại, đã cập nhật role/status');
         }
 
-        console.log('\n📋 Thông tin đăng nhập admin mặc định:');
+        console.log('\nThông tin đăng nhập admin mặc định:');
         console.log(`username: ${DEFAULT_ADMIN.username}`);
         console.log(`email: ${DEFAULT_ADMIN.email}`);
         console.log(`password: ${DEFAULT_ADMIN.password}`);
 
-        console.log('\n📋 Danh sách ID role:');
+        console.log('\nDanh sách ID role:');
         createdRoles.forEach((role) => {
             console.log(`${role.name}: ${role._id}`);
         });
