@@ -9,7 +9,7 @@ function isLikelyDevToolsOpen() {
   const widthGap = window.outerWidth - window.innerWidth;
   const heightGap = window.outerHeight - window.innerHeight;
 
-  return widthGap > 160 || heightGap > 160;
+  return widthGap > 120 || heightGap > 120;
 }
 
 export default function DevToolsGuard() {
@@ -29,6 +29,7 @@ export default function DevToolsGuard() {
       }
 
       lockRef.current = true;
+      localStorage.setItem('devtools_locked', '1');
       authService.logout();
       window.location.replace('/login');
     };
@@ -39,7 +40,8 @@ export default function DevToolsGuard() {
       if (
         event.key === 'F12' ||
         (event.ctrlKey && event.shiftKey && ['i', 'j', 'c'].includes(key)) ||
-        (event.ctrlKey && key === 'u')
+        (event.ctrlKey && key === 'u') ||
+        (event.metaKey && event.altKey && ['i', 'j', 'c'].includes(key))
       ) {
         event.preventDefault();
         event.stopPropagation();
@@ -55,15 +57,19 @@ export default function DevToolsGuard() {
       if (isLikelyDevToolsOpen()) {
         lockSession();
       }
-    }, 1000);
+    }, 250);
 
     window.addEventListener('keydown', handleKeyDown, true);
     window.addEventListener('contextmenu', handleContextMenu, true);
+    window.addEventListener('resize', lockSession, true);
+    window.addEventListener('blur', lockSession, true);
 
     return () => {
       window.clearInterval(intervalId);
       window.removeEventListener('keydown', handleKeyDown, true);
       window.removeEventListener('contextmenu', handleContextMenu, true);
+      window.removeEventListener('resize', lockSession, true);
+      window.removeEventListener('blur', lockSession, true);
     };
   }, []);
 
