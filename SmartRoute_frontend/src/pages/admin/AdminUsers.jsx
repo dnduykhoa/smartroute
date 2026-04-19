@@ -172,7 +172,7 @@ export default function AdminUsers() {
   const handleAddUser = async () => {
     // Validation
     if (!formData.username.trim()) {
-      setMessage({ type: 'error', text: 'Username không được để trống' });
+      setMessage({ type: 'error', text: 'Tên đang nhập không được để trống' });
       return;
     }
     if (!formData.email.trim()) {
@@ -488,7 +488,7 @@ export default function AdminUsers() {
                           className="rounded border-slate-300"
                         />
                       </th>
-                      <th className="px-4 py-3 text-left font-semibold">Username</th>
+                      <th className="px-4 py-3 text-left font-semibold">Tên đăng nhập</th>
                       <th className="px-4 py-3 text-left font-semibold">Họ tên</th>
                       <th className="px-4 py-3 text-left font-semibold">Email</th>
                       <th className="px-4 py-3 text-left font-semibold">Role</th>
@@ -594,7 +594,7 @@ export default function AdminUsers() {
 
             <div className="px-6 py-4 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-900 mb-1">Username *</label>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Tên đang nhập <span className="text-rose-500">*</span></label>
                 <input
                   type="text"
                   value={formData.username}
@@ -605,7 +605,7 @@ export default function AdminUsers() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-900 mb-1">Email *</label>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Email <span className="text-rose-500">*</span></label>
                 <input
                   type="email"
                   value={formData.email}
@@ -616,7 +616,7 @@ export default function AdminUsers() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-900 mb-1">Họ tên *</label>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Họ tên <span className="text-rose-500">*</span></label>
                 <input
                   type="text"
                   value={formData.fullName}
@@ -627,7 +627,7 @@ export default function AdminUsers() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-900 mb-1">Mật khẩu *</label>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Mật khẩu <span className="text-rose-500">*</span></label>
                 <input
                   type="password"
                   value={formData.password}
@@ -658,7 +658,7 @@ export default function AdminUsers() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-900 mb-1">Role *</label>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Role <span className="text-rose-500">*</span></label>
                 <select
                   value={formData.roleId}
                   onChange={(e) => setFormData({ ...formData, roleId: e.target.value })}
@@ -708,7 +708,7 @@ export default function AdminUsers() {
 
             <div className="px-6 py-4 space-y-4">
               <div className="bg-indigo-50 rounded-lg p-4">
-                <p className="text-xs text-slate-500 mb-1">Username</p>
+                <p className="text-xs text-slate-500 mb-1">Tên đăng nhập</p>
                 <p className="text-lg font-semibold text-slate-900">{selectedUser.username}</p>
               </div>
 

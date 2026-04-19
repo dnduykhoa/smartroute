@@ -162,9 +162,11 @@ function downloadTemplateFile() {
   XLSX.writeFile(workbook, 'mau_import_don_hang.xlsx');
 }
 
-function buildOrders(rows, headerMap) {
+function buildOrders(rows, headerMap, existingOrderCodes = new Set()) {
   const parsedOrders = [];
   const parseErrors = [];
+  const seenOrderCodes = new Set();
+  const firstSeenRowByOrderCode = new Map();
 
   const pushError = (rowNumber, column, message, value) => {
     parseErrors.push({
@@ -210,6 +212,27 @@ function buildOrders(rows, headerMap) {
       pushError(rowNumber, 'Hình thức', 'Chỉ chấp nhận online hoặc offline', row[headerMap['Hình thức']]);
     }
 
+    if (orderCode) {
+      const normalizedOrderCode = orderCode.toLowerCase();
+
+      if (seenOrderCodes.has(normalizedOrderCode)) {
+        const firstRow = firstSeenRowByOrderCode.get(normalizedOrderCode);
+        pushError(
+          rowNumber,
+          'Mã đơn hàng',
+          firstRow ? `Mã đơn hàng bị trùng với dòng ${firstRow} trong file import` : 'Mã đơn hàng bị trùng trong file import',
+          orderCode
+        );
+      } else {
+        seenOrderCodes.add(normalizedOrderCode);
+        firstSeenRowByOrderCode.set(normalizedOrderCode, rowNumber);
+      }
+
+      if (existingOrderCodes.has(normalizedOrderCode)) {
+        pushError(rowNumber, 'Mã đơn hàng', 'Mã đơn hàng đã tồn tại trong hệ thống', orderCode);
+      }
+    }
+
     parsedOrders.push({
       orderCode,
       product,
@@ -226,13 +249,8 @@ function buildOrders(rows, headerMap) {
     });
   });
 
-  const uniqueByOrderCode = new Map();
-  parsedOrders.forEach((order) => {
-    uniqueByOrderCode.set(order.orderCode, order);
-  });
-
   return {
-    orders: Array.from(uniqueByOrderCode.values()),
+    orders: parsedOrders,
     parseErrors,
   };
 }
@@ -470,15 +488,29 @@ export default function AdminOrders() {
         return;
       }
 
-      const { orders: importedOrders, parseErrors } = buildOrders(jsonRows, headerMap);
+      const existingOrderCodes = new Set(orders.map((order) => String(order.orderCode || '').toLowerCase()));
+      const { orders: importedOrders, parseErrors } = buildOrders(jsonRows, headerMap, existingOrderCodes);
 
       if (parseErrors.length) {
         setErrors(parseErrors.slice(0, 12));
         return;
       }
 
-      setOrders(importedOrders);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(importedOrders));
+      const mergedOrders = [...orders];
+      importedOrders.forEach((order) => {
+        const existingIndex = mergedOrders.findIndex(
+          (item) => String(item.orderCode || '').toLowerCase() === String(order.orderCode || '').toLowerCase()
+        );
+
+        if (existingIndex >= 0) {
+          mergedOrders[existingIndex] = order;
+        } else {
+          mergedOrders.push(order);
+        }
+      });
+
+      setOrders(mergedOrders);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(mergedOrders));
       setSuccessMessage(`Import thành công ${importedOrders.length} đơn hàng.`);
     } catch (error) {
       setErrors([{ message: `Không thể đọc file Excel: ${error.message}` }]);
@@ -848,7 +880,7 @@ export default function AdminOrders() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-slate-900 mb-2">
-                    Mã đơn hàng *
+                    Mã đơn hàng <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -861,7 +893,7 @@ export default function AdminOrders() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-slate-900 mb-2">
-                    Sản phẩm *
+                    Sản phẩm <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -873,7 +905,7 @@ export default function AdminOrders() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-slate-900 mb-2">
-                    Số lượng *
+                    Số lượng <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="number"
@@ -885,7 +917,7 @@ export default function AdminOrders() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-slate-900 mb-2">
-                    Đơn vị *
+                    Đơn vị <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -897,7 +929,7 @@ export default function AdminOrders() {
                 </div>
                 <div className="col-span-2">
                   <label className="block text-sm font-semibold text-slate-900 mb-2">
-                    Địa chỉ *
+                    Địa chỉ <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -909,7 +941,7 @@ export default function AdminOrders() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-slate-900 mb-2">
-                    Phường *
+                    Phường <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -933,7 +965,7 @@ export default function AdminOrders() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-slate-900 mb-2">
-                    Thành phố *
+                    Thành phố <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -945,7 +977,7 @@ export default function AdminOrders() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-slate-900 mb-2">
-                    Số điện thoại *
+                    Số điện thoại <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -957,7 +989,7 @@ export default function AdminOrders() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-slate-900 mb-2">
-                    Hình thức *
+                    Hình thức <span className="text-rose-500">*</span>
                   </label>
                   <select
                     value={formData.method}

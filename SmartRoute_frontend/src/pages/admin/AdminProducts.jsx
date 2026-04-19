@@ -527,7 +527,7 @@ export default function AdminProducts() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Mã sản phẩm */}
                 <div>
-                  <label className="block text-sm font-medium text-slate-900 mb-1">Mã sản phẩm *</label>
+                  <label className="block text-sm font-medium text-slate-900 mb-1">Mã sản phẩm <span className="text-rose-500">*</span></label>
                   <input
                     type="text"
                     value={formData.productCode}
@@ -542,7 +542,7 @@ export default function AdminProducts() {
 
                 {/* Tên sản phẩm */}
                 <div>
-                  <label className="block text-sm font-medium text-slate-900 mb-1">Tên sản phẩm *</label>
+                  <label className="block text-sm font-medium text-slate-900 mb-1">Tên sản phẩm <span className="text-rose-500">*</span></label>
                   <input
                     type="text"
                     value={formData.name}
@@ -554,7 +554,7 @@ export default function AdminProducts() {
 
                 {/* Danh mục */}
                 <div>
-                  <label className="block text-sm font-medium text-slate-900 mb-1">Danh mục *</label>
+                  <label className="block text-sm font-medium text-slate-900 mb-1">Danh mục <span className="text-rose-500">*</span></label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
@@ -569,7 +569,7 @@ export default function AdminProducts() {
 
                 {/* Đơn vị */}
                 <div>
-                  <label className="block text-sm font-medium text-slate-900 mb-1">Đơn vị *</label>
+                  <label className="block text-sm font-medium text-slate-900 mb-1">Đơn vị <span className="text-rose-500">*</span></label>
                   <input
                     type="text"
                     value={formData.unit}
@@ -581,7 +581,7 @@ export default function AdminProducts() {
 
                 {/* Giá */}
                 <div>
-                  <label className="block text-sm font-medium text-slate-900 mb-1">Giá (đ) *</label>
+                  <label className="block text-sm font-medium text-slate-900 mb-1">Giá (đ) <span className="text-rose-500">*</span></label>
                   <input
                     type="number"
                     value={formData.price}
@@ -594,7 +594,7 @@ export default function AdminProducts() {
 
                 {/* Số lượng */}
                 <div>
-                  <label className="block text-sm font-medium text-slate-900 mb-1">Tồn kho *</label>
+                  <label className="block text-sm font-medium text-slate-900 mb-1">Tồn kho <span className="text-rose-500">*</span></label>
                   <input
                     type="number"
                     value={formData.quantity}
@@ -607,7 +607,7 @@ export default function AdminProducts() {
 
                 {/* Trạng thái */}
                 <div>
-                  <label className="block text-sm font-medium text-slate-900 mb-1">Trạng thái *</label>
+                  <label className="block text-sm font-medium text-slate-900 mb-1">Trạng thái <span className="text-rose-500">*</span></label>
                   <select
                     value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value })}

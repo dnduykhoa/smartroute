@@ -136,6 +136,24 @@ export const orderService = {
   }
 };
 
+export const analyticsService = {
+  getSummary: () => {
+    return api.get('/api/analytics/summary');
+  },
+
+  getTrends: (params = {}) => {
+    return api.get('/api/analytics/trends', { params });
+  },
+
+  getInsights: (params = {}) => {
+    return api.get('/api/analytics/insights', { params });
+  },
+
+  compareUsers: (params = {}) => {
+    return api.get('/api/analytics/compare', { params });
+  }
+};
+
 export const geocodingService = {
   search: (query) => {
     return api.get('/api/geocoding/search', {
