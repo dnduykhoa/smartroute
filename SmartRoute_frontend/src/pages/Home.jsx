@@ -109,6 +109,22 @@ export default function Home() {
                   Quản Lý Đơn Hàng
                 </Link>
               </div>
+            ) : isLoggedIn ? (
+              <div className="flex flex-col items-center gap-3">
+                <p className="text-lg text-indigo-100">
+                  Xin chào, <span className="font-semibold text-white">{user?.fullName || user?.username}</span>
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Link
+                    to="/"
+                    onClick={() => authService.logout()}
+                    className="px-6 py-3 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-indigo-50 transition-colors flex items-center justify-center gap-2"
+                  >
+                    Đăng Xuất
+                    <ArrowRight className="w-5 h-5" />
+                  </Link>
+                </div>
+              </div>
             ) : (
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
