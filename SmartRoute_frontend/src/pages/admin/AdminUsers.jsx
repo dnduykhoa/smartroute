@@ -83,6 +83,9 @@ export default function AdminUsers() {
   };
 
   const initials = (user?.fullName || user?.username || 'AD').slice(0, 2).toUpperCase();
+  const currentUserId = String(user?.id || user?._id || '');
+
+  const isCurrentAccount = (targetUser) => String(targetUser?._id || '') === currentUserId;
 
   const filteredUsers = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -229,6 +232,12 @@ export default function AdminUsers() {
   };
 
   const handleToggleStatus = async (targetUser) => {
+    if (isCurrentAccount(targetUser)) {
+      setMessage({ type: 'error', text: 'Không thể khóa/mở chính tài khoản đang đăng nhập' });
+      setTimeout(() => setMessage(null), 3000);
+      return;
+    }
+
     try {
       const newStatus = !targetUser.status;
       const res = await userService.updateUserStatus(targetUser._id, newStatus);
@@ -246,6 +255,12 @@ export default function AdminUsers() {
   };
 
   const handleRoleChange = async (targetUser, roleId) => {
+    if (isCurrentAccount(targetUser)) {
+      setMessage({ type: 'error', text: 'Không thể đổi role của chính tài khoản đang đăng nhập' });
+      setTimeout(() => setMessage(null), 3000);
+      return;
+    }
+
     try {
       const res = await userService.updateUserRole(targetUser._id, roleId);
       const updated = res.data?.user;
@@ -259,6 +274,12 @@ export default function AdminUsers() {
   };
 
   const handleResetPassword = async (targetUser) => {
+    if (isCurrentAccount(targetUser)) {
+      setMessage({ type: 'error', text: 'Không thể reset mật khẩu của chính tài khoản đang đăng nhập ở màn hình này' });
+      setTimeout(() => setMessage(null), 3000);
+      return;
+    }
+
     const newPassword = prompt(
       `Nhập mật khẩu mới cho ${targetUser.username}:\n(Yêu cầu: Tối thiểu 8 ký tự, chữ hoa, chữ thường, số, ký tự đặc biệt)`,
       ''
@@ -286,6 +307,12 @@ export default function AdminUsers() {
   const handleDeleteUser = async () => {
     if (!deleteConfirmInput || deleteConfirmInput !== selectedUser.username) {
       setMessage({ type: 'error', text: 'Vui lòng nhập đúng username để xác nhận xóa' });
+      return;
+    }
+
+    if (isCurrentAccount(selectedUser)) {
+      setMessage({ type: 'error', text: 'Không thể xóa chính tài khoản đang đăng nhập' });
+      setTimeout(() => setMessage(null), 3000);
       return;
     }
 
@@ -504,7 +531,10 @@ export default function AdminUsers() {
                         </td>
                       </tr>
                     ) : (
-                      filteredUsers.map((item) => (
+                      filteredUsers.map((item) => {
+                        const isSelf = isCurrentAccount(item);
+
+                        return (
                         <tr key={item._id} className="border-t border-slate-100 hover:bg-slate-50/70">
                           <td className="px-4 py-3">
                             <input
@@ -519,9 +549,10 @@ export default function AdminUsers() {
                           <td className="px-4 py-3 text-slate-700 text-xs">{item.email}</td>
                           <td className="px-4 py-3">
                             <select
-                              className="px-2 py-1.5 border border-slate-300 rounded-md text-sm"
+                              className="px-2 py-1.5 border border-slate-300 rounded-md text-sm disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
                               value={item.role?._id || ''}
                               onChange={(e) => handleRoleChange(item, e.target.value)}
+                              disabled={isSelf}
                             >
                               {roles.map((role) => (
                                 <option key={role._id} value={role._id}>
@@ -533,7 +564,9 @@ export default function AdminUsers() {
                           <td className="px-4 py-3">
                             <button
                               onClick={() => handleToggleStatus(item)}
-                              className={`px-3 py-1 rounded-full text-xs font-medium cursor-pointer transition-colors ${
+                              disabled={isSelf}
+                              title={isSelf ? 'Không thể thao tác trên chính tài khoản đang đăng nhập' : undefined}
+                              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${
                                 item.status
                                   ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
                                   : 'bg-amber-100 text-amber-700 hover:bg-amber-200'
@@ -553,22 +586,24 @@ export default function AdminUsers() {
                               </button>
                               <button
                                 onClick={() => handleResetPassword(item)}
-                                className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                title="Reset mật khẩu"
+                                disabled={isSelf}
+                                className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                                title={isSelf ? 'Không thể thao tác trên chính tài khoản đang đăng nhập' : 'Reset mật khẩu'}
                               >
                                 <RotateCcw className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => openDeleteModal(item)}
-                                className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                                title="Xóa người dùng"
+                                disabled={isSelf}
+                                className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                                title={isSelf ? 'Không thể thao tác trên chính tài khoản đang đăng nhập' : 'Xóa người dùng'}
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
                             </div>
                           </td>
                         </tr>
-                      ))
+                      )})
                     )}
                   </tbody>
                 </table>
