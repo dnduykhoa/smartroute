@@ -9,6 +9,10 @@ function isValidObjectId(id) {
   return mongoose.Types.ObjectId.isValid(id);
 }
 
+function isSelfTarget(req) {
+  return String(req.params.id) === String(req.currentUser._id);
+}
+
 // Validate strong password
 function validateStrongPassword(password) {
   const errors = [];
@@ -117,6 +121,13 @@ router.patch('/:id/status', async (req, res) => {
       });
     }
 
+    if (isSelfTarget(req)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Không thể khóa/mở chính tài khoản admin đang đăng nhập'
+      });
+    }
+
     const updatedUser = await User.findOneAndUpdate(
       { _id: req.params.id, isDeleted: false },
       { $set: { status } },
@@ -167,6 +178,13 @@ router.patch('/:id/role', async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'roleId không hợp lệ'
+      });
+    }
+
+    if (isSelfTarget(req)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Không thể đổi role của chính tài khoản admin đang đăng nhập'
       });
     }
 
@@ -307,6 +325,13 @@ router.patch('/:id/password', async (req, res) => {
       });
     }
 
+    if (isSelfTarget(req)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Không thể reset mật khẩu của chính tài khoản admin đang đăng nhập tại màn hình này'
+      });
+    }
+
     // Validate strong password
     const passwordValidation = validateStrongPassword(password);
     if (!passwordValidation.isValid) {
@@ -350,7 +375,7 @@ router.delete('/:id', async (req, res) => {
       });
     }
 
-    if (String(req.params.id) === String(req.currentUser._id)) {
+    if (isSelfTarget(req)) {
       return res.status(400).json({
         success: false,
         message: 'Không thể xóa chính tài khoản admin đang đăng nhập'
