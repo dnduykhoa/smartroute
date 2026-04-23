@@ -33,14 +33,18 @@ const roles = [
 ];
 
 const DEFAULT_ADMIN = {
-    username: process.env.DEFAULT_ADMIN_USERNAME || 'admin',
-    email: process.env.DEFAULT_ADMIN_EMAIL || 'admin@smartroute.local',
-    password: process.env.DEFAULT_ADMIN_PASSWORD || 'Duykhoa@0972350720',
-    fullName: process.env.DEFAULT_ADMIN_FULLNAME || 'System Administrator'
+    username: process.env.DEFAULT_ADMIN_USERNAME,
+    email: process.env.DEFAULT_ADMIN_EMAIL,
+    password: process.env.DEFAULT_ADMIN_PASSWORD,
+    fullName: process.env.DEFAULT_ADMIN_FULLNAME
 };
 
 async function seedRoles() {
     try {
+        if (!DEFAULT_ADMIN.password) {
+            throw new Error('Thiếu DEFAULT_ADMIN_PASSWORD trong file .env hoặc environment variables');
+        }
+
         // Upsert role để chạy nhiều lần không bị trùng và không bị mất dữ liệu cũ
         const createdRoles = [];
         for (const roleData of roles) {
@@ -90,11 +94,6 @@ async function seedRoles() {
             await adminUser.save();
             console.log('✓ Tài khoản admin đã tồn tại, đã cập nhật role/status');
         }
-
-        console.log('\nThông tin đăng nhập admin mặc định:');
-        console.log(`username: ${DEFAULT_ADMIN.username}`);
-        console.log(`email: ${DEFAULT_ADMIN.email}`);
-        console.log(`password: ${DEFAULT_ADMIN.password}`);
 
         console.log('\nDanh sách ID role:');
         createdRoles.forEach((role) => {
