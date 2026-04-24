@@ -5,7 +5,7 @@ const User = require('../schemas/users');
 const Role = require('../schemas/role');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key_here';
-const JWT_EXPIRES_IN = '7d';
+const JWT_EXPIRES_IN = '24h';
 
 function isSecureJwtSecretConfigured() {
     return process.env.JWT_SECRET && process.env.JWT_SECRET !== 'your_secret_key_here';
