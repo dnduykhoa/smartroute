@@ -34,6 +34,20 @@ export default function Login() {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
 
+        const tokenParts = response.data.token.split('.');
+        if (tokenParts[1]) {
+          try {
+            const payload = JSON.parse(atob(tokenParts[1]));
+            if (payload?.exp) {
+              localStorage.setItem('token_expires_at', String(payload.exp * 1000));
+            }
+          } catch {
+            localStorage.removeItem('token_expires_at');
+          }
+        }
+
+        window.dispatchEvent(new Event('auth-change'));
+
         setFormData({ username: '', password: '' });
         const roleName = response.data.user?.role?.name?.toLowerCase();
         navigate(roleName === 'admin' ? '/admin' : '/');

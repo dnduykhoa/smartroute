@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import DevToolsGuard from './components/DevToolsGuard';
+import SessionExpiryWatcher from './components/SessionExpiryWatcher';
 import ProtectedAdminRoute from './components/ProtectedAdminRoute';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -29,6 +30,7 @@ function App() {
   return (
     <Router>
       <DevToolsGuard />
+      <SessionExpiryWatcher />
       <Routes>
         <Route path="/admin" element={<ProtectedAdminRoute><AdminDashboard /></ProtectedAdminRoute>} />
         <Route path="/admin/orders" element={<ProtectedAdminRoute><AdminOrders /></ProtectedAdminRoute>} />

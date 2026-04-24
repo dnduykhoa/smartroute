@@ -10,10 +10,54 @@ const api = axios.create({
   }
 });
 
+function decodeJwtPayload(token) {
+  try {
+    const payload = token.split('.')[1];
+    if (!payload) return null;
+
+    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const decoded = atob(normalized.padEnd(normalized.length + (4 - (normalized.length % 4 || 4)) % 4, '='));
+    return JSON.parse(decoded);
+  } catch {
+    return null;
+  }
+}
+
+function isExpired(expiryMs) {
+  return typeof expiryMs === 'number' && Date.now() >= expiryMs;
+}
+
+function clearSession() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  localStorage.removeItem('token_expires_at');
+  localStorage.removeItem('devtools_locked');
+}
+
+function notifyAuthChange() {
+  window.dispatchEvent(new Event('auth-change'));
+}
+
+function getTokenExpiryMs(token) {
+  const payload = decodeJwtPayload(token);
+  if (payload?.exp) {
+    return payload.exp * 1000;
+  }
+  return null;
+}
+
 // Add token to requests
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
+    const tokenExpiresAt = Number(localStorage.getItem('token_expires_at')) || null;
+
+    if (token && isExpired(tokenExpiresAt)) {
+      clearSession();
+      window.location.href = '/login';
+      return Promise.reject(new Error('Session expired'));
+    }
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -51,13 +95,24 @@ export const authService = {
   },
 
   logout: () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('devtools_locked');
+    clearSession();
+    notifyAuthChange();
   },
 
   isLoggedIn: () => {
-    return !!localStorage.getItem('token');
+    const token = localStorage.getItem('token');
+    const tokenExpiresAt = Number(localStorage.getItem('token_expires_at')) || null;
+
+    if (!token) {
+      return false;
+    }
+
+    if (isExpired(tokenExpiresAt)) {
+      clearSession();
+      return false;
+    }
+
+    return true;
   },
 
   getToken: () => {
@@ -65,6 +120,14 @@ export const authService = {
   },
 
   getUser: () => {
+    const token = localStorage.getItem('token');
+    const tokenExpiresAt = Number(localStorage.getItem('token_expires_at')) || null;
+
+    if (!token || isExpired(tokenExpiresAt)) {
+      clearSession();
+      return null;
+    }
+
     const user = localStorage.getItem('user');
     return user ? JSON.parse(user) : null;
   }
